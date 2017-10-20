@@ -95,8 +95,7 @@ public class UpcomingAlarmReceiver extends BroadcastReceiver {
                     .setContentText(text)
                     .setContentIntent(ContentIntentUtils.create(context,
                             MainActivity.PAGE_ALARMS, id))
-                    .addAction(R.drawable.ic_dismiss_alarm_24dp,
-                            context.getString(R.string.dismiss_now), piDismiss)
+                    // .addAction(R.drawable.ic_dismiss_alarm_24dp, context.getString(R.string.dismiss_now), piDismiss)
                     .build();
             nm.notify(TAG, (int) id, note);
         } else if (ACTION_CANCEL_NOTIFICATION.equals(intent.getAction())) {

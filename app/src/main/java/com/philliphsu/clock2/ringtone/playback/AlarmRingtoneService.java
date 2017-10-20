@@ -20,6 +20,7 @@
 package com.philliphsu.clock2.ringtone.playback;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
@@ -38,6 +39,7 @@ public class AlarmRingtoneService extends RingtoneService<Alarm> {
     /* TOneverDO: not private */
     private static final String ACTION_SNOOZE = "com.philliphsu.clock2.ringtone.action.SNOOZE";
     private static final String ACTION_DISMISS = "com.philliphsu.clock2.ringtone.action.DISMISS";
+    private static final String ACTION_OPEN = "com.philliphsu.clock2.ringtone.action.OPEN";
 
     private AlarmController mAlarmController;
 
@@ -50,6 +52,14 @@ public class AlarmRingtoneService extends RingtoneService<Alarm> {
                 mAlarmController.snoozeAlarm(getRingingObject());
             } else if (ACTION_DISMISS.equals(intent.getAction())) {
                 mAlarmController.cancelAlarm(getRingingObject(), false, true); // TODO do we really need to cancel the intent and alarm?
+            } else if (ACTION_OPEN.equals(intent.getAction())) {
+                PendingIntent s = mAlarmController.ReopenRingtoneActivity(getRingingObject());
+                try {
+                    s.send();
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                    mAlarmController.snoozeAlarm(getRingingObject());
+                }
             } else {
                 throw new UnsupportedOperationException();
             }
@@ -69,7 +79,8 @@ public class AlarmRingtoneService extends RingtoneService<Alarm> {
     @Override
     protected void onAutoSilenced() {
         // TODO do we really need to cancel the alarm and intent?
-        mAlarmController.cancelAlarm(getRingingObject(), false, true);
+        //mAlarmController.cancelAlarm(getRingingObject(), false, true);
+        mAlarmController.snoozeAlarm(getRingingObject());
     }
 
     @Override
@@ -93,11 +104,9 @@ public class AlarmRingtoneService extends RingtoneService<Alarm> {
                 .setContentTitle(title)
                 .setContentText(formatTime(this, System.currentTimeMillis()))
                 .addAction(R.drawable.ic_snooze_24dp,
-                        getString(R.string.snooze),
-                        getPendingIntent(ACTION_SNOOZE, getRingingObject().getIntId()))
-                .addAction(R.drawable.ic_dismiss_alarm_24dp,
-                        getString(R.string.dismiss),
-                        getPendingIntent(ACTION_DISMISS, getRingingObject().getIntId()))
+                        getString(R.string.open),
+                        getPendingIntent(ACTION_OPEN, getRingingObject().getIntId()))
+                //.addAction(R.drawable.ic_dismiss_alarm_24dp, getString(R.string.dismiss), getPendingIntent(ACTION_DISMISS, getRingingObject().getIntId()))
                 .build();
     }
 

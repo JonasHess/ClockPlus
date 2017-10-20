@@ -93,18 +93,18 @@ public final class AlarmController {
         // alarm is updated to recur on a weekday later than the current day.
         removeUpcomingAlarmNotification(alarm);
 
-        AlarmManager am = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
 
         final long ringAt = alarm.isSnoozed() ? alarm.snoozingUntil() : alarm.ringsAt();
         final PendingIntent alarmIntent = alarmIntent(alarm, false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             PendingIntent showIntent = ContentIntentUtils.create(mAppContext, MainActivity.PAGE_ALARMS, alarm.getId());
             AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(ringAt, showIntent);
-            am.setAlarmClock(info, alarmIntent);
+            alarmManager.setAlarmClock(info, alarmIntent);
         } else {
             // WAKEUP alarm types wake the CPU up, but NOT the screen;
             // you would handle that yourself by using a wakelock, etc..
-            am.setExact(AlarmManager.RTC_WAKEUP, ringAt, alarmIntent);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, ringAt, alarmIntent);
             // Show alarm in the status bar
             Intent alarmChanged = new Intent("android.intent.action.ALARM_CHANGED");
             alarmChanged.putExtra("alarmSet", true/*enabled*/);
@@ -117,7 +117,7 @@ public final class AlarmController {
             long upcomingAt = ringAt - HOURS.toMillis(hoursToNotifyInAdvance);
             // We use a WAKEUP alarm to send the upcoming alarm notification so it goes off even if the
             // device is asleep. Otherwise, it will not go off until the device is turned back on.
-            am.set(AlarmManager.RTC_WAKEUP, upcomingAt, notifyUpcomingAlarmIntent(alarm, false));
+            alarmManager.set(AlarmManager.RTC_WAKEUP, upcomingAt, notifyUpcomingAlarmIntent(alarm, false));
         }
 
         if (showSnackbar) {
@@ -135,12 +135,12 @@ public final class AlarmController {
      */
     public void cancelAlarm(Alarm alarm, boolean showSnackbar, boolean rescheduleIfRecurring) {
         Log.d(TAG, "Cancelling alarm " + alarm);
-        AlarmManager am = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);
 
-        PendingIntent pi = alarmIntent(alarm, true);
-        if (pi != null) {
-            am.cancel(pi);
-            pi.cancel();
+        PendingIntent pendingIntent = alarmIntent(alarm, true);
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent);
+            pendingIntent.cancel();
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 // Remove alarm in the status bar
                 Intent alarmChanged = new Intent("android.intent.action.ALARM_CHANGED");
@@ -149,10 +149,10 @@ public final class AlarmController {
             }
         }
 
-        pi = notifyUpcomingAlarmIntent(alarm, true);
-        if (pi != null) {
-            am.cancel(pi);
-            pi.cancel();
+        pendingIntent = notifyUpcomingAlarmIntent(alarm, true);
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent);
+            pendingIntent.cancel();
         }
 
         // Does nothing if it's not posted.
@@ -185,9 +185,9 @@ public final class AlarmController {
                 alarm.ignoreUpcomingRingTime(true); // Useful only for VH binding
                 Intent intent = new Intent(mAppContext, PendingAlarmScheduler.class)
                         .putExtra(PendingAlarmScheduler.EXTRA_ALARM_ID, alarm.getId());
-                pi = PendingIntent.getBroadcast(mAppContext, alarm.getIntId(),
+                pendingIntent = PendingIntent.getBroadcast(mAppContext, alarm.getIntId(),
                         intent, FLAG_CANCEL_CURRENT);
-                am.set(AlarmManager.RTC_WAKEUP, alarm.ringsAt(), pi);
+                alarmManager.set(AlarmManager.RTC_WAKEUP, alarm.ringsAt(), pendingIntent);
             } else {
                 scheduleAlarm(alarm, false);
             }
@@ -231,6 +231,11 @@ public final class AlarmController {
         }).start();
     }
 
+    public PendingIntent ReopenRingtoneActivity(Alarm alarm) {
+        return alarmIntent(alarm, false);
+        // PendingIntent showIntent = ContentIntentUtils.create(mAppContext, MainActivity.PAGE_ALARMS, alarm.getId());
+    }
+
     private PendingIntent alarmIntent(Alarm alarm, boolean retrievePrevious) {
         Intent intent = new Intent(mAppContext, AlarmActivity.class)
                 .putExtra(AlarmActivity.EXTRA_RINGING_OBJECT, ParcelableUtil.marshall(alarm));
@@ -252,7 +257,7 @@ public final class AlarmController {
         return PendingIntent.getBroadcast(mAppContext, alarm.getIntId(), intent, flag);
     }
 
-    private void showSnackbar(final String message) {
+    public void showSnackbar(final String message) {
         // Is the window containing this anchor currently focused?
 //        Log.d(TAG, "Anchor has window focus? " + mSnackbarAnchor.hasWindowFocus());
         if (mSnackbarAnchor != null /*&& mSnackbarAnchor.hasWindowFocus()*/) {

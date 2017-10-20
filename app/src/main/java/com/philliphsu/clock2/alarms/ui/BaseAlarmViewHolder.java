@@ -298,9 +298,12 @@ public abstract class BaseAlarmViewHolder extends BaseViewHolder<Alarm> {
         boolean upcoming = hoursBeforeUpcoming > 0 && alarm.ringsWithinHours(hoursBeforeUpcoming);
         boolean snoozed = alarm.isSnoozed();
         boolean visible = alarm.isEnabled() && (upcoming || snoozed);
-        String buttonText = snoozed
-                ? getContext().getString(R.string.title_snoozing_until, formatTime(getContext(), alarm.snoozingUntil()))
-                : getContext().getString(R.string.dismiss_now);
+
+        String buttonText = getContext().getString(R.string.dismiss_now);
+        if (snoozed) {
+            buttonText  = buttonText + " (" + formatTime(getContext(), alarm.snoozingUntil()) + " )";
+        }
+
         setVisibility(mDismissButton, visible);
         mDismissButton.setText(buttonText);
         // Set drawable start

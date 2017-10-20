@@ -21,11 +21,15 @@ package com.philliphsu.clock2.ringtone;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.view.ViewGroup;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.philliphsu.clock2.R;
 import com.philliphsu.clock2.alarms.Alarm;
@@ -33,6 +37,9 @@ import com.philliphsu.clock2.alarms.misc.AlarmController;
 import com.philliphsu.clock2.ringtone.playback.AlarmRingtoneService;
 import com.philliphsu.clock2.ringtone.playback.RingtoneService;
 import com.philliphsu.clock2.util.TimeFormatUtils;
+
+import java.util.Calendar;
+
 
 public class AlarmActivity extends RingtoneActivity<Alarm> {
     private static final String TAG = "AlarmActivity";
@@ -115,6 +122,24 @@ public class AlarmActivity extends RingtoneActivity<Alarm> {
 
     @Override
     protected void onLeftButtonClick() {
+        TimePicker timePicker = this.getTimePicker();
+
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int minutes = Calendar.getInstance().get(Calendar.MINUTE);
+
+
+
+        if (timePicker.getHour() != hour || timePicker.getMinute() != minutes) {
+
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(500);
+
+            Toast toast = Toast.makeText(getApplicationContext(), "Enter the current time  " + hour + ":" + minutes, Toast.LENGTH_SHORT);
+            toast.show();
+            return;
+        }
+
+
         mAlarmController.snoozeAlarm(getRingingObject());
         // Can't call dismiss() because we don't want to also call cancelAlarm()! Why? For example,
         // we don't want the alarm, if it has no recurrence, to be turned off right now.

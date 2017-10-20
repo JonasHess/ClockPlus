@@ -19,11 +19,13 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:orientation="vertical"
              android:background="?attr/colorPrimary">
 
+    <!-- HEADER -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -40,6 +42,10 @@
             style="@style/TextAppearance.AppCompat.Title"/>
 
     </LinearLayout>
+
+
+
+    <!-- HEADER -->
 
     <LinearLayout
         android:id="@+id/auto_silenced_container"
@@ -67,27 +73,43 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/quest_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/buttons_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="visible">
 
         <FrameLayout
             android:id="@+id/btn_left"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="?selectableItemBackground">
+            android:background="?selectableItemBackground"
+            android:longClickable="true">
 
             <TextView
                 android:id="@+id/btn_text_left"
+                style="@style/TextAppearance.AppCompat.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:drawablePadding="8dp"
-                style="@style/TextAppearance.AppCompat.Medium"/>
+                android:gravity="center" />
 
         </FrameLayout>
 
@@ -96,16 +118,17 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="?selectableItemBackground">
+            android:background="?selectableItemBackground"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/btn_text_right"
+                style="@style/TextAppearance.AppCompat.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:drawablePadding="8dp"
-                style="@style/TextAppearance.AppCompat.Medium"/>
+                android:gravity="center" />
 
         </FrameLayout>
 

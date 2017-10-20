@@ -30,8 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.philliphsu.clock2.BaseActivity;
 import com.philliphsu.clock2.R;
@@ -65,6 +67,7 @@ public abstract class RingtoneActivity<T extends Parcelable> extends BaseActivit
     @Bind(R.id.buttons_container) LinearLayout mButtonsContainer;
     @Bind(R.id.btn_text_left) TextView mLeftButton;
     @Bind(R.id.btn_text_right) TextView mRightButton;
+    @Bind(R.id.timePicker) TimePicker mTimePicker;
 
     protected abstract Class<? extends RingtoneService> getRingtoneServiceClass();
 
@@ -136,6 +139,10 @@ public abstract class RingtoneActivity<T extends Parcelable> extends BaseActivit
         mRightButton.setText(getRightButtonText());
         mLeftButton.setCompoundDrawablesWithIntrinsicBounds(0, getLeftButtonDrawable(), 0, 0);
         mRightButton.setCompoundDrawablesWithIntrinsicBounds(0, getRightButtonDrawable(), 0, 0);
+
+        mTimePicker.setIs24HourView(true);
+        mTimePicker.setHour(0);
+        mTimePicker.setMinute(0);
 
         Intent intent = new Intent(this, getRingtoneServiceClass())
                 .putExtra(EXTRA_RINGING_OBJECT, ParcelableUtil.marshall(mRingingObject));
@@ -237,6 +244,10 @@ public abstract class RingtoneActivity<T extends Parcelable> extends BaseActivit
     protected final void stopAndFinish() {
         stopService(new Intent(this, getRingtoneServiceClass()));
         finish();
+    }
+
+    public TimePicker getTimePicker(){
+        return this.mTimePicker;
     }
 
     protected final T getRingingObject() {
